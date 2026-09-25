@@ -325,8 +325,8 @@ func renderPatrolWispDescription(cfg PatrolConfig) (string, error) {
 }
 
 func patrolRigName(cfg PatrolConfig) string {
-	rigName, _, ok := strings.Cut(cfg.Assignee, "/")
-	if !ok {
+	rigName, rest, ok := strings.Cut(cfg.Assignee, "/")
+	if !ok || rest == "" {
 		return ""
 	}
 	return rigName

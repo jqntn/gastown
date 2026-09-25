@@ -676,6 +676,9 @@ func TestPatrolRigName(t *testing.T) {
 	if got := patrolRigName(PatrolConfig{Assignee: "deacon"}); got != "" {
 		t.Fatalf("patrolRigName without rig = %q, want empty", got)
 	}
+	if got := patrolRigName(PatrolConfig{Assignee: "deacon/"}); got != "" {
+		t.Fatalf("patrolRigName for town address = %q, want empty", got)
+	}
 }
 
 func TestRenderPatrolWispDescription_DeaconInlinesStepsAndVars(t *testing.T) {
