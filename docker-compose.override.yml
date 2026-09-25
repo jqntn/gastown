@@ -1,7 +1,7 @@
 services:
   gastown:
     ports: !override
-      - "127.0.0.1:${DASHBOARD_PORT:-8080}:8080"
+      - "127.0.0.1:8080:8080"
       - "127.0.0.1:7681:7681"
     command:
       - sh
