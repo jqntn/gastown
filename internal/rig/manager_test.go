@@ -1040,6 +1040,70 @@ esac
 	assertBeadsDirLog(t, beadsDirLog, rigBeadsDir)
 }
 
+func TestInitAgentBeadsCreatesRigLocalCopy(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("fake bd stub is bash-only")
+	}
+
+	townRoot := t.TempDir()
+	townBeadsDir := filepath.Join(townRoot, ".beads")
+	rigPath := filepath.Join(townRoot, "demo")
+	rigBeadsDir := filepath.Join(rigPath, ".beads")
+	for _, dir := range []string{filepath.Join(townRoot, "mayor"), townBeadsDir, rigBeadsDir} {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatalf("mkdir %s: %v", dir, err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(townRoot, "mayor", "town.json"), []byte(`{"name":"test"}`), 0644); err != nil {
+		t.Fatalf("write town.json: %v", err)
+	}
+
+	script := `#!/usr/bin/env bash
+if [[ "$1" == "--allow-stale" ]]; then
+  shift
+fi
+cmd="$1"
+shift
+case "$cmd" in
+  show)
+    echo "[]"
+    ;;
+  create)
+    for arg in "$@"; do
+      case "$arg" in
+        --id=*) id="${arg#--id=}" ;;
+      esac
+    done
+    echo "${BEADS_DIR} ${id}" >> "$AGENT_LOG"
+    printf '{"id":"%s","title":"t","description":"","issue_type":"agent"}' "$id"
+    ;;
+esac
+`
+	binDir := writeFakeBD(t, script, "")
+	agentLog := filepath.Join(t.TempDir(), "agents.log")
+	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+	t.Setenv("AGENT_LOG", agentLog)
+	t.Setenv("BEADS_DIR", "")
+
+	manager := &Manager{townRoot: townRoot}
+	if err := manager.initAgentBeads(rigPath, "demo", "gt"); err != nil {
+		t.Fatalf("initAgentBeads: %v", err)
+	}
+
+	data, err := os.ReadFile(agentLog)
+	if err != nil {
+		t.Fatalf("reading agent log: %v", err)
+	}
+	created := string(data)
+	for _, id := range []string{"gt-demo-witness", "gt-demo-refinery"} {
+		for _, dir := range []string{townBeadsDir, rigBeadsDir} {
+			if !strings.Contains(created, dir+" "+id+"\n") {
+				t.Errorf("agent %s was not created in %s; log:\n%s", id, dir, created)
+			}
+		}
+	}
+}
+
 func TestIsValidBeadsPrefix(t *testing.T) {
 	tests := []struct {
 		prefix string

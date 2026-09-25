@@ -627,6 +627,18 @@ func (b *Beads) ForAgentBead() *Beads {
 	}
 }
 
+func (b *Beads) WithoutRouting() *Beads {
+	return &Beads{
+		workDir:    b.workDir,
+		beadsDir:   b.beadsDir,
+		isolated:   b.isolated,
+		serverPort: b.serverPort,
+		store:      b.store,
+		townRoot:   b.townRoot,
+		noRoute:    true,
+	}
+}
+
 func (b *Beads) agentBeadTarget() *Beads {
 	if b.noRoute {
 		return b

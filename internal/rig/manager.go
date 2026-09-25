@@ -1318,6 +1318,9 @@ func (m *Manager) initAgentBeads(rigPath, rigName, prefix string) error {
 		if _, err := bd.CreateAgentBead(agent.id, agent.desc, fields); err != nil {
 			return fmt.Errorf("creating %s: %w", agent.id, err)
 		}
+		if _, err := bd.WithoutRouting().CreateAgentBead(agent.id, agent.desc, fields); err != nil {
+			return fmt.Errorf("creating rig-local %s: %w", agent.id, err)
+		}
 		fmt.Printf("   ✓ Created agent bead: %s\n", agent.id)
 	}
 
