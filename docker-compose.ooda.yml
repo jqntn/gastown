@@ -1,0 +1,11 @@
+name: ooda-gastown
+
+services:
+  gastown:
+    container_name: ooda-gastown
+    environment:
+      GIT_USER: Julien QUENTIN
+      GIT_EMAIL: jqu@obvious.tech
+    ports: !override
+      - "127.0.0.1:8081:8080"
+      - "127.0.0.1:7682:7681"
