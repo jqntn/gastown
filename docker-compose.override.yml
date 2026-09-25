@@ -1,13 +1,12 @@
 services:
   gastown:
-    container_name: ${GT_CONTAINER:-gastown-sandbox}
     volumes: !override
       - agent-home:/home/agent
       - gt:/gt
       - dolt-data:/gt/.dolt-data
     ports: !override
       - "127.0.0.1:${DASHBOARD_PORT:-8080}:8080"
-      - "127.0.0.1:${TTYD_PORT:-7681}:7681"
+      - "127.0.0.1:7681:7681"
     command:
       - sh
       - -c
