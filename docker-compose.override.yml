@@ -1,3 +1,5 @@
+name: gastown
+
 services:
   gastown:
     ports: !override
