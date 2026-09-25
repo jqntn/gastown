@@ -1,0 +1,13 @@
+name: dig-gastown
+
+services:
+  gastown:
+    container_name: dig-gastown
+    environment:
+      GIT_USER: Julien QUENTIN
+      GIT_EMAIL: jqntn88@gmail.com
+      CORS_ORIGINS: http://pc-rd:7669,http://pc-rd.tail465046.ts.net:7669
+    ports: !override
+      - "127.0.0.1:8082:8080"
+      - "127.0.0.1:7683:7681"
+      - "127.0.0.1:7669:7667"
