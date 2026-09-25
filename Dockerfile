@@ -4,6 +4,7 @@ FROM docker/sandbox-templates:claude-code
 
 ARG GO_VERSION=1.26.2
 ARG DOLT_VERSION=2.0.7
+ARG BD_VERSION=1.0.5
 
 USER root
 
@@ -11,6 +12,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     build-essential \
     git \
+    git-lfs \
     libicu-dev \
     sqlite3 \
     tmux \
@@ -29,7 +31,7 @@ RUN ARCH=$(dpkg --print-architecture) && \
 ENV PATH="/app/gastown:/usr/local/go/bin:/home/agent/go/bin:${PATH}"
 
 # Install beads (bd) and dolt
-RUN curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+RUN GOBIN=/usr/local/bin go install github.com/steveyegge/beads/cmd/bd@v${BD_VERSION} && rm -rf /root/go /root/.cache/go-build
 RUN curl -fsSL https://github.com/dolthub/dolt/releases/download/v${DOLT_VERSION}/install.sh | bash
 
 # Set up directories
