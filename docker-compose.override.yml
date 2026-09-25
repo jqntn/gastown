@@ -5,12 +5,15 @@ services:
     ports: !override
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:7681:7681"
+      - "127.0.0.1:7667:7667"
     command:
       - sh
       - -c
       - |
         [ -x /home/agent/.local/bin/ttyd ] || curl -fsSL -o /home/agent/.local/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64 && chmod +x /home/agent/.local/bin/ttyd
+        [ -e /home/agent/.local/bin/gastown-gui ] || npm install -g --prefix /home/agent/.local github:web3dev1337/gastown-gui#a01c3bf
         cd /gt
         gt dashboard >/tmp/dashboard.log 2>&1 &
         /home/agent/.local/bin/ttyd -W -p 7681 gt mayor attach >/tmp/ttyd.log 2>&1 &
+        HOST=0.0.0.0 GT_ROOT=/gt TMUX=/tmp/tmux-1000/gt-e7bf91,0,0 /home/agent/.local/bin/gastown-gui start >/tmp/gastown-gui.log 2>&1 &
         exec sleep infinity
