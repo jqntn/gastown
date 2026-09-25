@@ -224,6 +224,29 @@ func TestContainsWorkspaceTrustDialog(t *testing.T) {
 	}
 }
 
+func TestTrustDialogCursorOnExit(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		content string
+		want    bool
+	}{
+		{"exit first", "Quick safety check\n ❯ No, exit\n   Yes, I trust this folder", true},
+		{"trust first", "Quick safety check\n ❯ 1. Yes, I trust this folder\n   2. No, exit", false},
+		{"cursor moved to trust", "Quick safety check\n   No, exit\n ❯ Yes, I trust this folder", false},
+		{"codex trust prompt", "> You are in /tmp/demo\nDo you trust the contents of this directory?\n› 1. Yes, continue\n  2. No, quit", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := trustDialogCursorOnExit(tt.content)
+			if got != tt.want {
+				t.Errorf("trustDialogCursorOnExit(%q) = %v, want %v", tt.content, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestContainsBlockingStartupDialog(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

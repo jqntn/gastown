@@ -2014,7 +2014,12 @@ func (t *Tmux) AcceptWorkspaceTrustDialog(session string) error {
 		// Codex trust screens include a leading ">" banner line, so prompt
 		// detection alone would exit too early.
 		if containsWorkspaceTrustDialog(content) {
-			// Dialog found — accept it (option 1 is pre-selected, just press Enter)
+			// Dialog found — accept it
+			if trustDialogCursorOnExit(content) {
+				if _, err := t.run("send-keys", "-t", session, "Down"); err != nil {
+					return err
+				}
+			}
 			if _, err := t.run("send-keys", "-t", session, "Enter"); err != nil {
 				return err
 			}
@@ -2041,6 +2046,15 @@ func containsWorkspaceTrustDialog(content string) bool {
 	return strings.Contains(content, "trust this folder") ||
 		strings.Contains(content, "Quick safety check") ||
 		strings.Contains(content, "Do you trust the contents of this directory?")
+}
+
+func trustDialogCursorOnExit(content string) bool {
+	for _, line := range strings.Split(content, "\n") {
+		if strings.Contains(line, "❯") && strings.Contains(line, "No, exit") {
+			return true
+		}
+	}
+	return false
 }
 
 func containsBlockingStartupDialog(content string) (string, bool) {
