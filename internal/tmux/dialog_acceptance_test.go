@@ -1,6 +1,9 @@
 package tmux
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -80,6 +83,51 @@ func TestAcceptWorkspaceTrustDialog_DetectsCodexDialog(t *testing.T) {
 
 	if err := tm.AcceptWorkspaceTrustDialog(sessionName); err != nil {
 		t.Fatalf("AcceptWorkspaceTrustDialog: %v", err)
+	}
+}
+
+const trustDialogIgnoringEarlyKeys = `draw() { printf '\033[2;1H\033[JQuick safety check\n %s No, exit\n %s Yes, I trust this folder\n' "$1" "$2"; }
+stty -echo
+draw '❯' ' '
+sleep 1
+while read -rsn1 -t 0.05 _; do :; done
+sel=exit
+while IFS= read -rsn1 k; do
+	if [ "$k" = $'\e' ]; then
+		read -rsn2 k
+		[ "$k" = "[B" ] && sel=trust && draw ' ' '❯'
+	elif [ -z "$k" ]; then
+		printf '\033[2;1H\033[Jresult: %s\n$ ' "$sel"
+		exec sleep 60
+	fi
+done
+`
+
+func TestAcceptWorkspaceTrustDialog_RetriesIgnoredKeys(t *testing.T) {
+	tm := newTestTmux(t)
+	sessionName := "gt-test-trust-retry-" + t.Name()
+
+	script := filepath.Join(t.TempDir(), "dialog.sh")
+	if err := os.WriteFile(script, []byte(trustDialogIgnoringEarlyKeys), 0o755); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	_ = tm.KillSession(sessionName)
+	if err := tm.NewSessionWithCommand(sessionName, "", "bash "+script); err != nil {
+		t.Fatalf("NewSessionWithCommand: %v", err)
+	}
+	defer func() { _ = tm.KillSession(sessionName) }()
+
+	if err := tm.AcceptWorkspaceTrustDialog(sessionName); err != nil {
+		t.Fatalf("AcceptWorkspaceTrustDialog: %v", err)
+	}
+
+	content, err := tm.CapturePane(sessionName, 30)
+	if err != nil {
+		t.Fatalf("CapturePane: %v", err)
+	}
+	if !strings.Contains(content, "result: trust") {
+		t.Errorf("trust dialog not accepted, pane:\n%s", content)
 	}
 }
 

@@ -2015,17 +2015,15 @@ func (t *Tmux) AcceptWorkspaceTrustDialog(session string) error {
 		// detection alone would exit too early.
 		if containsWorkspaceTrustDialog(content) {
 			// Dialog found — accept it
+			key := "Enter"
 			if trustDialogCursorOnExit(content) {
-				if _, err := t.run("send-keys", "-t", session, "Down"); err != nil {
-					return err
-				}
+				key = "Down"
 			}
-			if _, err := t.run("send-keys", "-t", session, "Enter"); err != nil {
+			if _, err := t.run("send-keys", "-t", session, key); err != nil {
 				return err
 			}
-			// Wait for dialog to dismiss before proceeding
 			time.Sleep(500 * time.Millisecond)
-			return nil
+			continue
 		}
 
 		// Early exit: if agent prompt or shell prompt is visible, no trust dialog will appear.
