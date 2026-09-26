@@ -6,7 +6,7 @@ services:
     environment:
       GIT_USER: Julien QUENTIN
       GIT_EMAIL: jqntn88@gmail.com
-      CORS_ORIGINS: http://pc-rd:7669,http://pc-rd.tail465046.ts.net:7669
+      CORS_ORIGINS: http://pc-rd:7669,http://pc-rd.tail465046.ts.net:7669,https://dig-gastown.tail465046.ts.net
     ports: !override
       - "127.0.0.1:8082:8080"
       - "127.0.0.1:7683:7681"

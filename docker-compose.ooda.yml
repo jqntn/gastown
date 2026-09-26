@@ -6,7 +6,7 @@ services:
     environment:
       GIT_USER: Julien QUENTIN
       GIT_EMAIL: jqu@obvious.tech
-      CORS_ORIGINS: http://pc-rd:7668,http://pc-rd.tail465046.ts.net:7668
+      CORS_ORIGINS: http://pc-rd:7668,http://pc-rd.tail465046.ts.net:7668,https://ooda-gastown.tail465046.ts.net
     ports: !override
       - "127.0.0.1:8081:8080"
       - "127.0.0.1:7682:7681"
